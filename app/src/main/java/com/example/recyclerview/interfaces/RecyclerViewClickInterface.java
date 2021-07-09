@@ -1,8 +1,8 @@
-package com.example.recyclerview;
+package com.example.recyclerview.interfaces;
 
 import android.view.View;
 
-interface RecyclerViewClickInterface  {
+public interface RecyclerViewClickInterface  {
     public void onItemClick(int pos);
 
     public void onLongClick(int pos);

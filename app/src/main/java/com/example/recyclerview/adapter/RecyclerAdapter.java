@@ -1,6 +1,5 @@
-package com.example.recyclerview;
+package com.example.recyclerview.adapter;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,9 +9,14 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.recyclerview.R;
+import com.example.recyclerview.interfaces.RecyclerViewClickInterface;
+import com.example.recyclerview.util.Util;
+
+
 import java.util.ArrayList;
 
-class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {
+public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {
     public static final String TAG = "RecyclerAdapter";
     int count = 0;
     ArrayList<String> movieList;
@@ -27,7 +31,7 @@ class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
-        Log.d(TAG, "onCreateViewHolder" + count++);
+        Util.showLog(TAG, "onCreateViewHolder" + count++);
         LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
         View view = layoutInflater.inflate(R.layout.row_item, parent, false);
         ViewHolder viewHolder = new ViewHolder(view);

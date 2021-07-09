@@ -1,7 +1,6 @@
-package com.example.recyclerview;
+package com.example.recyclerview.activity;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -9,19 +8,22 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import android.app.Activity;
 import android.graphics.Canvas;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
 
+import com.example.recyclerview.R;
+
+import com.example.recyclerview.adapter.RecyclerAdapter;
+import com.example.recyclerview.interfaces.RecyclerViewClickInterface;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
 
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
 
-public class MainActivity extends AppCompatActivity implements RecyclerViewClickInterface {
+public class MainActivity extends BaseActivity implements RecyclerViewClickInterface {
     RecyclerView recyclerView;
     RecyclerAdapter recyclerAdapter;
     ArrayList<String> moviesList;
@@ -106,13 +108,15 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewClick
                 case ItemTouchHelper.LEFT:
                     deletedItem = moviesList.get(pos);
                     moviesList.remove(pos);
-                    recyclerAdapter.notifyItemRemoved(pos);
+                    //recyclerAdapter.notifyItemRemoved(pos);
+                    recyclerAdapter.notifyDataSetChanged();
                     Snackbar.make(recyclerView, deletedItem, Snackbar.LENGTH_LONG)
                             .setAction("UNDO", new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
                                     moviesList.add(pos, deletedItem);
-                                    recyclerAdapter.notifyItemInserted(pos);
+                                    //recyclerAdapter.notifyItemInserted(pos);
+                                    recyclerAdapter.notifyDataSetChanged();
                                 }
                             }).show();
                     break;
@@ -120,14 +124,17 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewClick
 
                     archivedItem = moviesList.get(pos);
                     archiveList.add(archivedItem);
-                    recyclerAdapter.notifyItemRemoved(pos);
+                    moviesList.remove(pos);
+                    //recyclerAdapter.notifyItemRemoved(pos);
+                    recyclerAdapter.notifyDataSetChanged();
                     Snackbar.make(recyclerView, archivedItem, Snackbar.LENGTH_LONG)
                             .setAction("UNDO", new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
                                     moviesList.add(pos, archivedItem);
                                     archiveList.remove(archiveList.lastIndexOf(archivedItem));
-                                    recyclerAdapter.notifyItemInserted(pos);
+                                    //recyclerAdapter.notifyItemInserted(pos);
+                                    recyclerAdapter.notifyDataSetChanged();
                                 }
                             }).show();
                     break;
