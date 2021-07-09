@@ -2,12 +2,15 @@ package com.example.recyclerview;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.app.Activity;
+import android.graphics.Canvas;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
@@ -16,10 +19,13 @@ import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
 
+import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
+
 public class MainActivity extends AppCompatActivity implements RecyclerViewClickInterface {
     RecyclerView recyclerView;
     RecyclerAdapter recyclerAdapter;
     ArrayList<String> moviesList;
+    ArrayList<String> archiveList;
     SwipeRefreshLayout swipeRefreshLayout;
     public static final String TAG = "MainActivity";
 
@@ -31,6 +37,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewClick
         recyclerView = findViewById(R.id.recyclerview);
         swipeRefreshLayout = findViewById(R.id.swiperefresh);
         moviesList = new ArrayList<>();
+        archiveList = new ArrayList<>();
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(this, DividerItemDecoration.VERTICAL);
         recyclerView.addItemDecoration(dividerItemDecoration);
         recyclerAdapter = new RecyclerAdapter(moviesList, this);
@@ -82,9 +89,11 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewClick
         itemTouchHelper.attachToRecyclerView(recyclerView);
 
     }
-        String deletedItem = "";
 
-    ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+    String deletedItem = "";
+    String archivedItem = "";
+
+    ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
         @Override
         public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
             return false;
@@ -92,28 +101,59 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewClick
 
         @Override
         public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+            int pos = viewHolder.getAdapterPosition();
             switch (direction) {
                 case ItemTouchHelper.LEFT:
-                    int pos = viewHolder.getBindingAdapterPosition();
                     deletedItem = moviesList.get(pos);
                     moviesList.remove(pos);
                     recyclerAdapter.notifyItemRemoved(pos);
-                    Snackbar.make(recyclerView,deletedItem, Snackbar.LENGTH_LONG)
-                            .setAction("ok", new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            moviesList.add(pos,deletedItem);
-                            recyclerAdapter.notifyItemInserted(pos);
-                        }
-                    }).show();
+                    Snackbar.make(recyclerView, deletedItem, Snackbar.LENGTH_LONG)
+                            .setAction("UNDO", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    moviesList.add(pos, deletedItem);
+                                    recyclerAdapter.notifyItemInserted(pos);
+                                }
+                            }).show();
                     break;
                 case ItemTouchHelper.RIGHT:
+
+                    archivedItem = moviesList.get(pos);
+                    archiveList.add(archivedItem);
+                    recyclerAdapter.notifyItemRemoved(pos);
+                    Snackbar.make(recyclerView, archivedItem, Snackbar.LENGTH_LONG)
+                            .setAction("UNDO", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    moviesList.add(pos, archivedItem);
+                                    archiveList.remove(archiveList.lastIndexOf(archivedItem));
+                                    recyclerAdapter.notifyItemInserted(pos);
+                                }
+                            }).show();
                     break;
 
             }
 
         }
+
+
+        @Override
+        public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+
+            new RecyclerViewSwipeDecorator.Builder(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
+
+                    .addSwipeLeftBackgroundColor(ContextCompat.getColor(MainActivity.this,R.color.red))
+                    .addSwipeLeftActionIcon(R.drawable.ic_delete)
+                    .addSwipeRightBackgroundColor(ContextCompat.getColor(MainActivity.this,R.color.teal_200))
+                    .addSwipeRightActionIcon(R.drawable.ic_archive)
+                    .create()
+                    .decorate();
+            super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+
+        }
     };
+
+
 
 
 
